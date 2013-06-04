@@ -13,6 +13,8 @@ object SimpleExample {
 		loadCSVColumnsAllString("data/data.csv", SimpleData.tableName)
 
 		run(Query(SimpleData) foreach { v => println(v)})
+		
+		System.err.println(guessColumnTypes(SimpleData.tableName))
 	}
 
 }
