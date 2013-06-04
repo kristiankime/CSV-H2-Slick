@@ -42,10 +42,10 @@ object ColumnInt extends ColumnType[Int] {
 	def isValidSQL(s: String) = {
 		try {
 			Integer.parseInt(s)
+			true
 		} catch {
 			case _: NumberFormatException => false
 		}
-		true
 	}
 }
 
@@ -57,10 +57,10 @@ object ColumnLong extends ColumnType[Long] {
 	def isValidSQL(s: String) = {
 		try {
 			Long.parseLong(s)
+			true
 		} catch {
 			case _: NumberFormatException => false
 		}
-		true
 	}
 }
 
@@ -73,10 +73,10 @@ object ColumnDate_yyy_MM_dd extends ColumnType[Date] {
 	def isValidSQL(s: String) = {
 		try {
 			dateFormat.parse(s)
+			true
 		} catch {
 			case _: ParseException => false
 		}
-		true
 	}
 }
 
@@ -88,10 +88,10 @@ object ColumnTimestamp extends ColumnType[Timestamp] {
 	def isValidSQL(s: String) = {
 		try {
 			Timestamp.valueOf(s)
+			true
 		} catch {
 			case _: IllegalArgumentException => false
 		}
-		true
 	}
 }
 

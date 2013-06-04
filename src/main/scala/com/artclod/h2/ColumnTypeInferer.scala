@@ -9,12 +9,7 @@ case class ColumnTypeInferer(name: String, types: ColumnType[_]*) {
 			case None => canBeNull = true
 			case Some(v) => {
 				for (i <- 0 until types.size) {
-					System.out.println(i + " " + types(i) + " for " + v + " canParse " + Vector(canParse : _ *))
-					
 					if (canParse(i) && !types(i).isValidSQL(v.trim)) {
-						
-						System.err.println(i + " " + types(i) + " set to false for " + v);
-						
 						canParse(i) = false
 					}
 				}
