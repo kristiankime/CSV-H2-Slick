@@ -23,7 +23,9 @@ object SimpleExample {
 //			val foo = Query(SimpleDataTyped).groupBy(r => (r.column1, r.column2))
 //		}
 		
-		println(scalaCodeFor("ScalaTable", SimpleDataTyped.tableName, columnTypes: _*))		
+		println(scalaCodeFor("ScalaTable", SimpleDataTyped.tableName, columnTypes: _*))
+		
+		run(Query(ScalaTable) foreach { v => println(v) })
 	}
 
 }

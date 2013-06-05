@@ -11,6 +11,7 @@ import java.util.TimeZone
 trait ColumnType[T] {
 	def isValidSQL(s: String): Boolean
 	val scalaType: Class[T]
+	def scalaTypeName = scalaType.getSimpleName
 	val sqlTypeName: String
 	def sqlTypeNameExtra(length: Int): String = ""
 	val sqlTypeInt: Int
@@ -19,6 +20,7 @@ trait ColumnType[T] {
 
 object ColumnBoolean extends ColumnType[Boolean] {
 	val scalaType = classOf[Boolean]
+	override def scalaTypeName = "Boolean"
 	val sqlTypeName = "boolean"
 	val sqlTypeInt = java.sql.Types.BOOLEAN
 
@@ -28,6 +30,7 @@ object ColumnBoolean extends ColumnType[Boolean] {
 
 object ColumnInt extends ColumnType[Int] {
 	val scalaType = classOf[Int]
+	override def scalaTypeName = "Int"
 	val sqlTypeName = "int"
 	val sqlTypeInt = java.sql.Types.INTEGER
 
@@ -43,6 +46,7 @@ object ColumnInt extends ColumnType[Int] {
 
 object ColumnLong extends ColumnType[Long] {
 	val scalaType = classOf[Long]
+	override def scalaTypeName = "Long"
 	val sqlTypeName = "bigint"
 	val sqlTypeInt = java.sql.Types.BIGINT
 

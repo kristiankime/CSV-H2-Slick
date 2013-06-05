@@ -10,3 +10,10 @@ object SimpleDataTyped extends Table[(Int, String, Date)]("SIMPLE_DATA_TYPED") {
 	def column3 = column[Date]("COLUMNC")
 	def * = column1 ~ column2 ~ column3
 }
+
+object ScalaTable extends Table[(Int, String, Date)]("SIMPLE_DATA_TYPED") {
+	def COLUMNA = column[Int]("COLUMNA")
+	def COLUMNB = column[String]("COLUMNB")
+	def COLUMNC = column[Date]("COLUMNC")
+	def * = COLUMNA ~ COLUMNB ~ COLUMNC
+}

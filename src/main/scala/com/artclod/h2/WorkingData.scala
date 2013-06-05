@@ -55,7 +55,7 @@ object WorkingData {
 	def scalaCodeFor(scalaName: String, tableName: String, columns: InferedColumnType*) = {
 		val b = new StringBuilder("object " + scalaName + " extends Table[(" + columns.map(cType(_)).mkString(", ") + ")](\"" + tableName + "\") {\n")
 		for (column <- columns) {
-			b ++= "\tdef " + cName(column.name) + " =[" + cType(column) + "](\"" + column.name + "\")\n"
+			b ++= "\tdef " + cName(column.name) + " = column[" + cType(column) + "](\"" + column.name + "\")\n"
 		}
 
 		b ++= "\tdef * = " + columns.map(_.name).mkString(" ~ ") + "\n"
@@ -65,15 +65,8 @@ object WorkingData {
 	}
 	private def cName(name: String) = """[\s]+""".r.replaceAllIn(name, "_")
 	private def cType(ict: InferedColumnType) = {
-		val t = ict.columnType.scalaType.getSimpleName
+		val t = ict.columnType.scalaTypeName
 		if (ict.canBeNull) { "Option[" + t + "]" } else { t }
 	}
-
-	//	object SimpleData extends Table[(String, String, String)]("SIMPLE_DATA") {
-	//	def column1 = column[String]("COLUMNA")
-	//	def column2 = column[String]("COLUMNB")
-	//	def column3 = column[String]("COLUMNC")
-	//	def * = column1 ~ column2 ~ column3
-	//  }
 
 }
