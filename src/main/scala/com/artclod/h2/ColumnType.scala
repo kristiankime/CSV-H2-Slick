@@ -12,6 +12,7 @@ trait ColumnType[T] {
 	def isValidSQL(s: String): Boolean
 	val scalaType: Class[T]
 	val sqlTypeName: String
+	def sqlTypeNameExtra(length: Int): String = ""
 	val sqlTypeInt: Int
 	override def toString() = "SQL[" + sqlTypeName + "]"
 }
@@ -98,9 +99,10 @@ object ColumnTimestamp extends ColumnType[Timestamp] {
 
 object ColumnString extends ColumnType[String] {
 	val scalaType = classOf[String]
-	val sqlTypeName = "varchar(x)"
+	val sqlTypeName = "varchar"
 	val sqlTypeInt = java.sql.Types.VARCHAR
 
+	override def sqlTypeNameExtra(length: Int): String = "(" + length + ")"
 	def isValidSQL(s: String) = { true }
 }
 

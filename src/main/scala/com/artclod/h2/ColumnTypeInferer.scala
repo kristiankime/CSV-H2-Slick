@@ -3,11 +3,13 @@ package com.artclod.h2
 case class ColumnTypeInferer(name: String, types: ColumnType[_]*) {
 	val canParse = Array.fill(types.size)(true)
 	var canBeNull = false;
-
+	var maxLength = 0;
+	
 	def sample(value: Option[String]) {
 		value match {
 			case None => canBeNull = true
 			case Some(v) => {
+				maxLength = Math.max(maxLength, v.size)
 				for (i <- 0 until types.size) {
 					if (canParse(i) && !types(i).isValidSQL(v.trim)) {
 						canParse(i) = false
@@ -34,9 +36,9 @@ case class ColumnTypeInferer(name: String, types: ColumnType[_]*) {
 		currentType
 	}
 
-	def inferedColumnType = InferedColumnType(name, canBeNull, firstTypeThatCanParse)
+	def inferedColumnType = InferedColumnType(name, canBeNull, maxLength, firstTypeThatCanParse)
 }
 
-case class InferedColumnType(name: String, canBeNull: Boolean, columnType: ColumnType[_]) {
-	def sqlColumn = { "" + name + " " + columnType.sqlTypeName + "" + (if (canBeNull) { "" } else { " NOT NULL" }) }
+case class InferedColumnType(name: String, canBeNull: Boolean, maxLength : Int, columnType: ColumnType[_]) {
+	def sqlColumn = { "" + name + " " + columnType.sqlTypeName + columnType.sqlTypeNameExtra(maxLength)  + (if (canBeNull) { "" } else { " NOT NULL" }) }
 }

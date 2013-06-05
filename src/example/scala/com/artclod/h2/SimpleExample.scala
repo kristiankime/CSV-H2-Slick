@@ -11,14 +11,12 @@ object SimpleExample {
 
 	def main(args: Array[String]) {
 		loadCSVColumnsAllString("data/data.csv", SimpleData.tableName)
-
-		run(Query(SimpleData) foreach { v => println(v)})
-		
 		val columnTypes = guessColumnTypes(SimpleData.tableName)
 		System.err.println(columnTypes)
+		run(Query(SimpleData) foreach { v => println(v)})
+		
 
 		loadCSV("data/data.csv", SimpleDataTyped.tableName, columnTypes: _*)
-
 		run(Query(SimpleDataTyped) foreach { v => println(v) })
 	}
 
