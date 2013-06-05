@@ -16,4 +16,5 @@ object ScalaTable extends Table[(Int, String, Date)]("SIMPLE_DATA_TYPED") {
 	def COLUMNB = column[String]("COLUMNB")
 	def COLUMNC = column[Date]("COLUMNC")
 	def * = COLUMNA ~ COLUMNB ~ COLUMNC
+	def inferredColumnData = Vector(InferedColumn("COLUMNA", false, 1, ColumnInt), InferedColumn("COLUMNB", false, 1, ColumnString), InferedColumn("COLUMNC", false, 9, ColumnDate_yyy_MM_dd))
 }

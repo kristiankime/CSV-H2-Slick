@@ -15,6 +15,7 @@ trait ColumnType[T] {
 	val sqlTypeName: String
 	def sqlTypeNameExtra(length: Int): String = ""
 	val sqlTypeInt: Int
+	def asString = getClass.getSimpleName.replace("$", "")
 	override def toString() = "SQL[" + sqlTypeName + "]"
 }
 

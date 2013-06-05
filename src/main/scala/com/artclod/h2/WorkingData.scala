@@ -20,7 +20,8 @@ object WorkingData {
 
 	private val firstColumnAsOptionString = GetResult(r => r.nextStringOption)
 	private val columnTypes = Vector(ColumnBoolean, ColumnInt, ColumnLong, ColumnDate_yyy_MM_dd, ColumnTimestamp, ColumnString)
-
+	private val inferredColumnData = "inferredColumnData"
+	
 	def run[T](code: => T) = {
 		Database.forURL(workingDataURL, driver = "org.h2.Driver") withSession { code }
 	}
@@ -34,7 +35,7 @@ object WorkingData {
 	def guessColumnTypes(tableName: String) = {
 		run {
 			val columnsMetaData = MTable.getTables(tableName).first.getColumns
-			val inferedColumnTypes = ArrayBuffer[InferedColumnType]()
+			val inferedColumnTypes = ArrayBuffer[InferedColumn]()
 			for (columnMetaData <- columnsMetaData) {
 				val columnTypeInferer = ColumnTypeInferer(columnMetaData.column, columnTypes: _*)
 				Q.queryNA("SELECT \"" + columnMetaData.column + "\" FROM \"" + tableName + "\"")(firstColumnAsOptionString).foreach(columnTypeInferer.sample(_))
@@ -45,14 +46,14 @@ object WorkingData {
 		}
 	}
 
-	def loadCSV(csvFile: String, tableName: String, columns: InferedColumnType*) = {
+	def loadCSV(csvFile: String, tableName: String, columns: InferedColumn*) = {
 		run {
 			Q.updateNA("CREATE TABLE " + tableName + "(" + columns.map(_.sqlColumn).mkString(", ") + ") AS SELECT * FROM CSVREAD('" + csvFile + "');").execute
 		}
 		tableName
 	}
 
-	def scalaCodeFor(scalaName: String, tableName: String, columns: InferedColumnType*) = {
+	def scalaCodeFor(scalaName: String, tableName: String, columns: InferedColumn*) = {
 		val b = new StringBuilder("object " + scalaName + " extends Table[(" + columns.map(cType(_)).mkString(", ") + ")](\"" + tableName + "\") {\n")
 		for (column <- columns) {
 			b ++= "\tdef " + cName(column.name) + " = column[" + cType(column) + "](\"" + column.name + "\")\n"
@@ -60,11 +61,13 @@ object WorkingData {
 
 		b ++= "\tdef * = " + columns.map(_.name).mkString(" ~ ") + "\n"
 
+		b ++= "\tdef " + inferredColumnData + " = Vector(" + columns.map(_.asString).mkString(", ") + ")\n"
+		
 		b ++= "}"
 		b.toString
 	}
 	private def cName(name: String) = """[\s]+""".r.replaceAllIn(name, "_")
-	private def cType(ict: InferedColumnType) = {
+	private def cType(ict: InferedColumn) = {
 		val t = ict.columnType.scalaTypeName
 		if (ict.canBeNull) { "Option[" + t + "]" } else { t }
 	}
