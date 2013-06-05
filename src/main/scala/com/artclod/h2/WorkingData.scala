@@ -19,14 +19,16 @@ object WorkingData {
 	val workingDataURL = "jdbc:h2:mem:working_data_" + UUID.randomUUID().toString() + ";DB_CLOSE_DELAY=-1"
 
 	private val firstColumnAsOptionString = GetResult(r => r.nextStringOption)
-	private val columnTypes = Vector(ColumnBoolean, ColumnByte, ColumnInt, ColumnLong, ColumnDate_yyy_MM_dd, ColumnTimestamp, ColumnString)
+	private val columnTypes = Vector(ColumnBoolean, ColumnInt, ColumnLong, ColumnDate_yyy_MM_dd, ColumnTimestamp, ColumnString)
 
 	def run[T](code: => T) = {
 		Database.forURL(workingDataURL, driver = "org.h2.Driver") withSession { code }
 	}
 
 	def loadCSVColumnsAllString(csvFile: String, tableName: String) = {
-		run { Q.updateNA("CREATE TABLE \"" + tableName + "\" AS SELECT * FROM CSVREAD('" + csvFile + "');").execute }
+		run {
+			Q.updateNA("CREATE TABLE \"" + tableName + "\" AS SELECT * FROM CSVREAD('" + csvFile + "');").execute
+		}
 	}
 
 	def guessColumnTypes(tableName: String) = {
@@ -47,8 +49,31 @@ object WorkingData {
 		run {
 			Q.updateNA("CREATE TABLE " + tableName + "(" + columns.map(_.sqlColumn).mkString(", ") + ") AS SELECT * FROM CSVREAD('" + csvFile + "');").execute
 		}
+		tableName
 	}
-	//	CREATE TABLE TEST(ID INT PRIMARY KEY, NAME VARCHAR(255))
-	//    AS SELECT * FROM CSVREAD('test.csv');
+
+	def scalaCodeFor(scalaName: String, tableName: String, columns: InferedColumnType*) = {
+		val b = new StringBuilder("object " + scalaName + " extends Table[(" + columns.map(cType(_)).mkString(", ") + ")](\"" + tableName + "\") {\n")
+		for (column <- columns) {
+			b ++= "\tdef " + cName(column.name) + " =[" + cType(column) + "](\"" + column.name + "\")\n"
+		}
+
+		b ++= "\tdef * = " + columns.map(_.name).mkString(" ~ ") + "\n"
+
+		b ++= "}"
+		b.toString
+	}
+	private def cName(name: String) = """[\s]+""".r.replaceAllIn(name, "_")
+	private def cType(ict: InferedColumnType) = {
+		val t = ict.columnType.scalaType.getSimpleName
+		if (ict.canBeNull) { "Option[" + t + "]" } else { t }
+	}
+
+	//	object SimpleData extends Table[(String, String, String)]("SIMPLE_DATA") {
+	//	def column1 = column[String]("COLUMNA")
+	//	def column2 = column[String]("COLUMNB")
+	//	def column3 = column[String]("COLUMNC")
+	//	def * = column1 ~ column2 ~ column3
+	//  }
 
 }

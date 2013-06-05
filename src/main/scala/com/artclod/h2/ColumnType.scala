@@ -26,15 +26,6 @@ object ColumnBoolean extends ColumnType[Boolean] {
 	def isValidSQL(s: String) = booleanStrings(s)
 }
 
-object ColumnByte extends ColumnType[Byte] {
-	val scalaType = classOf[Byte]
-	val sqlTypeName = "tinyint"
-	val sqlTypeInt = java.sql.Types.TINYINT
-	
-	private val regex = """^([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])$""".r
-	def isValidSQL(s: String) = regex.pattern.matcher(s).matches
-}
-
 object ColumnInt extends ColumnType[Int] {
 	val scalaType = classOf[Int]
 	val sqlTypeName = "int"

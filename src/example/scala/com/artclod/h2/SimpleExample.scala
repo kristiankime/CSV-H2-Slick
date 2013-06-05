@@ -18,6 +18,12 @@ object SimpleExample {
 
 		loadCSV("data/data.csv", SimpleDataTyped.tableName, columnTypes: _*)
 		run(Query(SimpleDataTyped) foreach { v => println(v) })
+		
+//		run{
+//			val foo = Query(SimpleDataTyped).groupBy(r => (r.column1, r.column2))
+//		}
+		
+		println(scalaCodeFor("ScalaTable", SimpleDataTyped.tableName, columnTypes: _*))		
 	}
 
 }
