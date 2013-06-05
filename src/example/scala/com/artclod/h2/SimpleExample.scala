@@ -14,7 +14,12 @@ object SimpleExample {
 
 		run(Query(SimpleData) foreach { v => println(v)})
 		
-		System.err.println(guessColumnTypes(SimpleData.tableName))
+		val columnTypes = guessColumnTypes(SimpleData.tableName)
+		System.err.println(columnTypes)
+
+		loadCSV("data/data.csv", SimpleDataTyped.tableName, columnTypes: _*)
+
+		run(Query(SimpleDataTyped) foreach { v => println(v) })
 	}
 
 }

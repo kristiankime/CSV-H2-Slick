@@ -43,4 +43,12 @@ object WorkingData {
 		}
 	}
 
+	def loadCSV(csvFile: String, tableName: String, columns: InferedColumnType*) = {
+		run {
+			Q.updateNA("CREATE TABLE " + tableName + " (" + columns.map(_.sqlColumn).mkString(", ") + ")AS SELECT * FROM CSVREAD('" + csvFile + "');").execute
+		}
+	}
+	//	CREATE TABLE TEST(ID INT PRIMARY KEY, NAME VARCHAR(255))
+	//    AS SELECT * FROM CSVREAD('test.csv');
+
 }

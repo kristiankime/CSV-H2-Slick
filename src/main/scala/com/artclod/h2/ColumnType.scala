@@ -5,8 +5,8 @@ import java.sql.Date
 import java.sql.Timestamp
 import java.text.ParseException
 import java.text.SimpleDateFormat
-
 import scala.util.matching.Regex
+import java.util.TimeZone
 
 trait ColumnType[T] {
 	def isValidSQL(s: String): Boolean
@@ -29,7 +29,7 @@ object ColumnByte extends ColumnType[Byte] {
 	val scalaType = classOf[Byte]
 	val sqlTypeName = "tinyint"
 	val sqlTypeInt = java.sql.Types.TINYINT
-
+	
 	private val regex = """^([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])$""".r
 	def isValidSQL(s: String) = regex.pattern.matcher(s).matches
 }
@@ -70,6 +70,7 @@ object ColumnDate_yyy_MM_dd extends ColumnType[Date] {
 	val sqlTypeInt = java.sql.Types.DATE
 
 	private val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
+	
 	def isValidSQL(s: String) = {
 		try {
 			dateFormat.parse(s)
@@ -102,9 +103,6 @@ object ColumnString extends ColumnType[String] {
 
 	def isValidSQL(s: String) = { true }
 }
-
-// Date <-> timestamp
-// Timestamp <-> timestamp
 
 //Java/JDBC	Oracle	PostgreSql	DB2	MySql	H2	MS SQL	Derby
 //int	 number	 integer	 int	 int	 int	 int	 integer

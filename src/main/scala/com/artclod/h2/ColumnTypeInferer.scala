@@ -16,18 +16,18 @@ case class ColumnTypeInferer(name: String, types: ColumnType[_]*) {
 			}
 		}
 	}
-	
+
 	private def firstTypeThatCanParse = {
-		val anyCanParse = Vector(canParse : _ *).foldLeft(false)( _ || _)
-		if(! anyCanParse){
+		val anyCanParse = Vector(canParse: _*).foldLeft(false)(_ || _)
+		if (!anyCanParse) {
 			throw new IllegalStateException("Was unable to find a type for column [" + name + "]")
 		}
-		
+
 		var i = 0
 		var currentCanParse = canParse(i)
 		var currentType = types(i)
-		while(!currentCanParse && i < types.size){
-			i += 1			
+		while (!currentCanParse && i < types.size) {
+			i += 1
 			currentCanParse = canParse(i)
 			currentType = types(i)
 		}
@@ -37,4 +37,6 @@ case class ColumnTypeInferer(name: String, types: ColumnType[_]*) {
 	def inferedColumnType = InferedColumnType(name, canBeNull, firstTypeThatCanParse)
 }
 
-case class InferedColumnType(name: String, canBeNull: Boolean, columnType: ColumnType[_])
+case class InferedColumnType(name: String, canBeNull: Boolean, columnType: ColumnType[_]) {
+	def sqlColumn = { "" + name + " " + columnType.sqlTypeName + "" + (if (canBeNull) { "" } else { " NOT NULL" }) }
+}
