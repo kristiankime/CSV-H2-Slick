@@ -36,10 +36,10 @@ case class ColumnTypeInferer(name: String, types: ColumnType[_]*) {
 		currentType
 	}
 
-	def inferedColumnType = InferedColumn(name, canBeNull, maxLength, firstTypeThatCanParse)
+	def inferedColumnType = InferredColumn(name, canBeNull, maxLength, firstTypeThatCanParse)
 }
 
-case class InferedColumn(name: String, canBeNull: Boolean, maxLength : Int, columnType: ColumnType[_]) {
+case class InferredColumn(name: String, canBeNull: Boolean, maxLength : Int, columnType: ColumnType[_]) {
 	def sqlColumn = "" + name + " " + columnType.sqlTypeName + columnType.sqlTypeNameExtra(maxLength)  + (if (canBeNull) { "" } else { " NOT NULL" })
-	def asString = InferedColumn.getClass.getSimpleName.replace("$", "") +"(\"" + name + "\", " + canBeNull + ", " + maxLength + ", " + columnType.asString + ")" 
+	def asString = InferredColumn.getClass.getSimpleName.replace("$", "") +"(\"" + name + "\", " + canBeNull + ", " + maxLength + ", " + columnType.asString + ")" 
 }

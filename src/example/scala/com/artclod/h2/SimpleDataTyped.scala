@@ -11,10 +11,10 @@ object SimpleDataTyped extends Table[(Int, String, Date)]("SIMPLE_DATA_TYPED") {
 	def * = column1 ~ column2 ~ column3
 }
 
-object ScalaTable extends Table[(Int, String, Date)]("SIMPLE_DATA_TYPED") {
+object ScalaTable extends Table[(Int, String, Date)]("SCALATABLE") {
 	def COLUMNA = column[Int]("COLUMNA")
 	def COLUMNB = column[String]("COLUMNB")
 	def COLUMNC = column[Date]("COLUMNC")
 	def * = COLUMNA ~ COLUMNB ~ COLUMNC
-	def inferredColumnData = Vector(InferedColumn("COLUMNA", false, 1, ColumnInt), InferedColumn("COLUMNB", false, 1, ColumnString), InferedColumn("COLUMNC", false, 9, ColumnDate_yyy_MM_dd))
+	def inferredColumnData = Vector(InferredColumn("COLUMNA", false, 1, ColumnInt), InferredColumn("COLUMNB", false, 1, ColumnString), InferredColumn("COLUMNC", false, 9, ColumnDate_yyy_MM_dd))
 }

@@ -25,7 +25,7 @@ object SimpleExample {
 		
 		println(scalaCodeFor("ScalaTable", SimpleDataTyped.tableName, columnTypes: _*))
 		
-		run(Query(ScalaTable) foreach { v => println(v) })
+//		run(Query(ScalaTable) foreach { v => println(v) })
 	}
 
 }
