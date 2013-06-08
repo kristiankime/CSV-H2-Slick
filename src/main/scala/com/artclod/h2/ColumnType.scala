@@ -7,23 +7,27 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import scala.util.matching.Regex
 import java.util.TimeZone
+import java.text.NumberFormat
+import java.util.Locale
+import java.text.DecimalFormat
+import java.math.BigDecimal
 
 trait ColumnType[T] {
 	val scalaType: Class[T]
 	def scalaTypeName = scalaType.getSimpleName.capitalize
-	
-	val sqlTypeName: String	
+
+	val sqlTypeName: String
 	def sqlTypeNameExtra(size: Int): String = ""
 	def isValidSQL(s: String): Boolean
-		
+
 	def asString = getClass.getSimpleName.replace("$", "")
-	
+
 	override def toString() = "SQL[" + sqlTypeName + "]"
 }
 
 object ColumnBoolean extends ColumnType[Boolean] {
 	val scalaType = classOf[Boolean]
-	
+
 	val sqlTypeName = "boolean"
 
 	private val booleanStrings = Set("True", "TRUE", "T", "true", "False", "FALSE", "F", "false")
@@ -35,12 +39,31 @@ object ColumnInt extends ColumnType[Int] {
 
 	val sqlTypeName = "int"
 
+	private val parser = { val p = NumberFormat.getInstance(Locale.US).asInstanceOf[DecimalFormat]; p.setParseBigDecimal(true); p }
 	def isValidSQL(s: String) = {
 		try {
-			Integer.parseInt(s)
+			parser.parse(s).asInstanceOf[BigDecimal].intValueExact
 			true
 		} catch {
-			case _: NumberFormatException => false
+			case _: ParseException => false
+			case _: ArithmeticException => false
+		}
+	}
+}
+
+object ColumnDouble extends ColumnType[Double] {
+	val scalaType = classOf[Double]
+
+	val sqlTypeName = "double"
+
+	private val parser = { val p = NumberFormat.getInstance(Locale.US).asInstanceOf[DecimalFormat]; p.setParseBigDecimal(true); p }
+	def isValidSQL(s: String) = {
+		try {
+			val d = parser.parse(s).asInstanceOf[BigDecimal].doubleValue
+			!(d == Double.NegativeInfinity || d == Double.PositiveInfinity)
+		} catch {
+			case _: ParseException => false
+			case _: ArithmeticException => false
 		}
 	}
 }
@@ -50,19 +73,21 @@ object ColumnLong extends ColumnType[Long] {
 
 	val sqlTypeName = "bigint"
 
+	private val parser = { val p = NumberFormat.getInstance(Locale.US).asInstanceOf[DecimalFormat]; p.setParseBigDecimal(true); p }
 	def isValidSQL(s: String) = {
 		try {
-			Long.parseLong(s)
+			parser.parse(s).asInstanceOf[BigDecimal].longValueExact
 			true
 		} catch {
-			case _: NumberFormatException => false
+			case _: ParseException => false
+			case _: ArithmeticException => false
 		}
 	}
 }
 
 object ColumnDate_yyy_MM_dd extends ColumnType[Date] {
 	val scalaType = classOf[Date]
-	
+
 	val sqlTypeName = "date"
 
 	private val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
@@ -78,7 +103,7 @@ object ColumnDate_yyy_MM_dd extends ColumnType[Date] {
 
 object ColumnTimestamp extends ColumnType[Timestamp] {
 	val scalaType = classOf[Timestamp]
-	
+
 	val sqlTypeName = "timestamp"
 
 	def isValidSQL(s: String) = {
@@ -93,10 +118,10 @@ object ColumnTimestamp extends ColumnType[Timestamp] {
 
 object ColumnString extends ColumnType[String] {
 	val scalaType = classOf[String]
-	
+
 	val sqlTypeName = "varchar"
 	override def sqlTypeNameExtra(length: Int): String = "(" + length + ")"
-	
+
 	def isValidSQL(s: String) = { true }
 }
 
