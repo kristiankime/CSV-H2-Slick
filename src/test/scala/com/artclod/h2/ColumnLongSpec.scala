@@ -14,6 +14,10 @@ class ColumnLongSpec extends FlatSpec with ShouldMatchers {
 		ColumnLong.isValidSQL("adsf") should equal(false)
 	}
 
+	ColumnLong + "'s isValidSQL " should " say false for date strings (eg 2013-1-5)" in {
+		ColumnLong.isValidSQL("2013-1-5") should equal(false)
+	}
+
 	ColumnLong + "'s isValidSQL " should " say true for negative ints (eg -100)" in {
 		ColumnLong.isValidSQL("-100") should equal(true)
 	}
@@ -21,7 +25,7 @@ class ColumnLongSpec extends FlatSpec with ShouldMatchers {
 	ColumnLong + "'s isValidSQL " should " say false for decimals (eg 100.45)" in {
 		ColumnLong.isValidSQL("100.45") should equal(false)
 	}
-	
+
 	ColumnLong + "'s isValidSQL " should " say true for numbers with commas (eg 1,000,000)" in {
 		ColumnLong.isValidSQL("1,000,000") should equal(true)
 	}

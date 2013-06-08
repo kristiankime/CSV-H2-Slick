@@ -21,11 +21,11 @@ object WorkingData {
 	val workingDataURL = "jdbc:h2:mem:working_data_" + UUID.randomUUID().toString() + ";DB_CLOSE_DELAY=-1"
 
 	private val firstColumnAsOptionString = GetResult(r => r.nextStringOption)
-	private val columnTypes = Vector(ColumnBoolean, ColumnInt, ColumnLong, ColumnDouble, ColumnDate_yyy_MM_dd, ColumnTimestamp, ColumnString)
+	private val columnTypes = Vector(ColumnBoolean, ColumnDate_yyy_MM_dd, ColumnTimestamp, ColumnInt, ColumnLong, ColumnDouble, ColumnString)
 	private val inferredColumnData = "inferredColumnData"
 
 	def run[T](code: => T) = {
-		Database.forURL(workingDataURL, driver = classOf[org.h2.Driver].getSimpleName.toString) withSession { code }
+		Database.forURL(workingDataURL, driver = classOf[org.h2.Driver].getCanonicalName().toString) withSession { code }
 	}
 
 	def loadCSVColumnsAllString(csvFile: String, tableName: String) = {
@@ -93,6 +93,9 @@ object WorkingData {
 		try {
 			loadCSVColumnsAllString(csvFile, tempCSVTable)
 			val columns = guessColumnTypes(tempCSVTable)
+
+			println();
+
 			loadCSV(csvFile, scalaName, columns: _*)
 			scalaCodeFor(scalaName, scalaName, columns: _*)
 		} finally {
