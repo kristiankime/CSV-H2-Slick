@@ -40,6 +40,9 @@ case class ColumnTypeInferer(name: String, types: ColumnType[_]*) {
 }
 
 case class InferredColumn(name: String, canBeNull: Boolean, maxLength : Int, columnType: ColumnType[_]) {
-	def sqlColumn = "" + name + " " + columnType.sqlTypeName + columnType.sqlTypeNameExtra(maxLength)  + (if (canBeNull) { "" } else { " NOT NULL" })
+	
+	def sqlColumn = "\"" + name + "\" " + columnType.sqlTypeName + columnType.sqlTypeNameExtra(maxLength)  + (if (canBeNull) { "" } else { " NOT NULL" })
+	
 	def asString = InferredColumn.getClass.getSimpleName.replace("$", "") +"(\"" + name + "\", " + canBeNull + ", " + maxLength + ", " + columnType.asString + ")" 
+
 }

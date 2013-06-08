@@ -13,4 +13,8 @@ class ColumnTypeSpec extends FlatSpec with ShouldMatchers {
 	ColumnInt + "'s isValidSQL " should " say false for adsf" in {
 		ColumnInt.isValidSQL("adsf") should equal (false)
 	}
+	
+	ColumnInt + "'s isValidSQL " should " say true for 1,000,000" in {
+		ColumnInt.isValidSQL("1,000,000") should equal (true)
+	}
 }

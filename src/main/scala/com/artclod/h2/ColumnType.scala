@@ -9,21 +9,22 @@ import scala.util.matching.Regex
 import java.util.TimeZone
 
 trait ColumnType[T] {
-	def isValidSQL(s: String): Boolean
 	val scalaType: Class[T]
-	def scalaTypeName = scalaType.getSimpleName
-	val sqlTypeName: String
-	def sqlTypeNameExtra(length: Int): String = ""
-	val sqlTypeInt: Int
+	def scalaTypeName = scalaType.getSimpleName.capitalize
+	
+	val sqlTypeName: String	
+	def sqlTypeNameExtra(size: Int): String = ""
+	def isValidSQL(s: String): Boolean
+		
 	def asString = getClass.getSimpleName.replace("$", "")
+	
 	override def toString() = "SQL[" + sqlTypeName + "]"
 }
 
 object ColumnBoolean extends ColumnType[Boolean] {
 	val scalaType = classOf[Boolean]
-	override def scalaTypeName = "Boolean"
+	
 	val sqlTypeName = "boolean"
-	val sqlTypeInt = java.sql.Types.BOOLEAN
 
 	private val booleanStrings = Set("True", "TRUE", "T", "true", "False", "FALSE", "F", "false")
 	def isValidSQL(s: String) = booleanStrings(s)
@@ -31,9 +32,8 @@ object ColumnBoolean extends ColumnType[Boolean] {
 
 object ColumnInt extends ColumnType[Int] {
 	val scalaType = classOf[Int]
-	override def scalaTypeName = "Int"
+
 	val sqlTypeName = "int"
-	val sqlTypeInt = java.sql.Types.INTEGER
 
 	def isValidSQL(s: String) = {
 		try {
@@ -47,9 +47,8 @@ object ColumnInt extends ColumnType[Int] {
 
 object ColumnLong extends ColumnType[Long] {
 	val scalaType = classOf[Long]
-	override def scalaTypeName = "Long"
+
 	val sqlTypeName = "bigint"
-	val sqlTypeInt = java.sql.Types.BIGINT
 
 	def isValidSQL(s: String) = {
 		try {
@@ -63,11 +62,10 @@ object ColumnLong extends ColumnType[Long] {
 
 object ColumnDate_yyy_MM_dd extends ColumnType[Date] {
 	val scalaType = classOf[Date]
+	
 	val sqlTypeName = "date"
-	val sqlTypeInt = java.sql.Types.DATE
 
 	private val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
-	
 	def isValidSQL(s: String) = {
 		try {
 			dateFormat.parse(s)
@@ -80,8 +78,8 @@ object ColumnDate_yyy_MM_dd extends ColumnType[Date] {
 
 object ColumnTimestamp extends ColumnType[Timestamp] {
 	val scalaType = classOf[Timestamp]
+	
 	val sqlTypeName = "timestamp"
-	val sqlTypeInt = java.sql.Types.TIMESTAMP
 
 	def isValidSQL(s: String) = {
 		try {
@@ -95,10 +93,10 @@ object ColumnTimestamp extends ColumnType[Timestamp] {
 
 object ColumnString extends ColumnType[String] {
 	val scalaType = classOf[String]
+	
 	val sqlTypeName = "varchar"
-	val sqlTypeInt = java.sql.Types.VARCHAR
-
 	override def sqlTypeNameExtra(length: Int): String = "(" + length + ")"
+	
 	def isValidSQL(s: String) = { true }
 }
 

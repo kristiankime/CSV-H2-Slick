@@ -49,12 +49,11 @@ object WorkingData {
 		}
 	}
 
-
 	// charset=UTF-8 escape=\" fieldDelimiter=\" fieldSeparator=, ' || 'lineComment=# lineSeparator=\n null= rowSeparator=
-	def loadCSV(csvFile : String, table: Table[_] { def inferredColumnData : Vector[InferredColumn] } ) : String = {
-		loadCSV(csvFile, table.tableName, table.inferredColumnData:_*)
+	def loadCSV(csvFile: String, table: Table[_] { def inferredColumnData: Vector[InferredColumn] }): String = {
+		loadCSV(csvFile, table.tableName, table.inferredColumnData: _*)
 	}
-	
+
 	def loadCSV(csvFile: String, tableName: String, columns: InferredColumn*) = {
 		run {
 			Q.updateNA("CREATE TABLE " + tName(tableName) + "(" + columns.map(_.sqlColumn).mkString(", ") + ") AS SELECT * FROM CSVREAD('" + csvFile + "');").execute
@@ -83,7 +82,7 @@ object WorkingData {
 	private def tName(name: String) = name.toUpperCase
 
 	def dropTable(tableName: String) = {
-		run {			
+		run {
 			Q.updateNA("DROP TABLE IF EXISTS \"" + tName(tableName) + "\";").execute
 		}
 		tableName
