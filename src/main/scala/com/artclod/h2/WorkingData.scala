@@ -15,7 +15,6 @@ import scala.slick.jdbc.meta.MColumn
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.immutable.Vector
 import scala.slick.jdbc.SetParameter
-import scala.actors.threadpool.AtomicInteger
 
 object WorkingData {
 	val workingDataURL = "jdbc:h2:mem:working_data_" + UUID.randomUUID().toString() + ";DB_CLOSE_DELAY=-1"
