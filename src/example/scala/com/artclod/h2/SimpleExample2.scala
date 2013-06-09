@@ -10,7 +10,7 @@ import com.artclod.h2.WorkingData._
 object SimpleExample2 {
 
 	def main(args: Array[String]) {
-		println(defScalaCodeFromCSV("ScalaTable", "data/data.csv"))
+		println(scalaCodeFromCSV("ScalaTable", "data/data.csv"))
 	}
 
 }

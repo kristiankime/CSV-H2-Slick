@@ -36,6 +36,7 @@ object WorkingData {
 	}
 
 	def guessColumnTypes(tableName: String) = {
+		if(tableName == null ) { throw new IllegalArgumentException("name was null")}
 		run {
 			val columnsMetaData = MTable.getTables(tName(tableName)).first.getColumns
 			val inferedColumnTypes = ArrayBuffer[InferredColumn]()
@@ -69,7 +70,7 @@ object WorkingData {
 
 		b ++= "\tdef * = " + columns.map(_.name).mkString(" ~ ") + "\n"
 
-		b ++= "\tdef " + inferredColumnData + " = Vector(" + columns.map(_.asString).mkString(", ") + ")\n"
+		b ++= "\tdef " + inferredColumnData + " = Vector(" + columns.map(_.asScalaCode).mkString(", ") + ")\n"
 
 		b ++= "}"
 		b.toString
@@ -88,14 +89,11 @@ object WorkingData {
 		tableName
 	}
 
-	def defScalaCodeFromCSV(scalaName: String, csvFile: String) = {
+	def scalaCodeFromCSV(scalaName: String, csvFile: String) = {
 		val tempCSVTable = "temp_table_" + UUID.randomUUID.toString
 		try {
 			loadCSVColumnsAllString(csvFile, tempCSVTable)
 			val columns = guessColumnTypes(tempCSVTable)
-
-			println();
-
 			loadCSV(csvFile, scalaName, columns: _*)
 			scalaCodeFor(scalaName, scalaName, columns: _*)
 		} finally {

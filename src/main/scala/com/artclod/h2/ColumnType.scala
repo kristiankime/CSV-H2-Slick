@@ -21,7 +21,7 @@ trait ColumnType[T] {
 	def sqlTypeNameExtra(size: Int): String = ""
 	def isValidSQL(s: String): Boolean
 
-	def asString = getClass.getSimpleName.replace("$", "")
+	def asScalaCode = getClass.getSimpleName.replace("$", "")
 
 	override def toString() = "SQL[" + sqlTypeName + "]"
 }

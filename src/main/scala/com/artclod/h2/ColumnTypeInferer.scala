@@ -43,6 +43,6 @@ case class InferredColumn(name: String, canBeNull: Boolean, maxLength : Int, col
 	
 	def sqlColumn = "\"" + name + "\" " + columnType.sqlTypeName + columnType.sqlTypeNameExtra(maxLength)  + (if (canBeNull) { "" } else { " NOT NULL" })
 	
-	def asString = InferredColumn.getClass.getSimpleName.replace("$", "") +"(\"" + name + "\", " + canBeNull + ", " + maxLength + ", " + columnType.asString + ")" 
+	def asScalaCode = InferredColumn.getClass.getSimpleName.replace("$", "") +"(\"" + name + "\", " + canBeNull + ", " + maxLength + ", " + columnType.asScalaCode + ")" 
 
 }
