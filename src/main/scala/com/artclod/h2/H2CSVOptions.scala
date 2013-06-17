@@ -13,7 +13,7 @@ case class H2CSVOptions(caseSensitiveColumnNames: Boolean = false,
 
 	private def sql(v: String, pre: String) = { if (v == null) { None } else { Some(pre + v) } }
 	private def sql(v: Boolean, pre: String) = { if (!v) { None } else { Some(pre + v) } }
-	private val csvOptions = (sql(charset, "charset=") ::
+	private def csvOptions = (sql(charset, "charset=") ::
 		sql(escape, "escape=") ::
 		sql(fieldDelimiter, "fieldDelimiter=") ::
 		sql(fieldSeparator, "fieldSeparator=") ::

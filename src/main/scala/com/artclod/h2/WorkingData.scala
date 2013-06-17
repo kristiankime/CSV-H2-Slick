@@ -25,15 +25,27 @@ object WorkingData {
 	private val inferredColumnData = "inferredColumnData"
 	private val firstColumnAsOptionString = GetResult(r => r.nextStringOption)
 
+	/**
+	 * Runs the code in session attached to the Working Data DB.
+	 */
 	def run[T](code: => T) = {
 		Database.forURL(workingDataURL, driver = classOf[org.h2.Driver].getCanonicalName().toString) withSession { code }
 	}
 
+	/**
+	 * Creates a table in Working Data DB based on the specified CSV file. All of the columns will be of type String.
+	 * This function is not usually used directly see scalaCodeFromCSV.
+	 */
 	def loadCSVColumnsAllString(csvFile: String, tableName: String)(implicit options: H2CSVOptions) = {
 		run { Q.updateNA("CREATE TABLE \"" + tName(tableName) + "\" AS " + csvReadCommand(csvFile, options) + ";").execute }
 	}
 	private def csvReadCommand(csvFile: String, options: H2CSVOptions) = "SELECT * FROM CSVREAD('" + csvFile + "', null" + options.sqlString + ")"
 	
+	/**
+	 * Guesses the "real" types of columns of a table already loaded in the Working Data DB.
+	 * The columns should currently be of type String.
+	 * This function is not usually used directly see scalaCodeFromCSV.
+	 */
 	def guessColumnTypes(tableName: String)(implicit columnTypes: Vector[ColumnType[_]]) = {
 		if (tableName == null) { throw new IllegalArgumentException("name was null") }
 		run {
@@ -49,18 +61,25 @@ object WorkingData {
 		}
 	}
 
-	// charset=UTF-8 escape=\" fieldDelimiter=\" fieldSeparator=, ' || 'lineComment=# lineSeparator=\n null= rowSeparator=
-	def loadCSV(csvFile: String, table: Table[_] { def inferredColumnData: Vector[InferredColumn] }, csvOptions: String = null)(implicit options: H2CSVOptions): String = {
+	/**
+	 * Loads a CSV attempting to give the columns the specified types.
+	 */
+	def loadCSV(csvFile: String, tableName: String, columns: InferredColumn*)(implicit options: H2CSVOptions) {
+		run { Q.updateNA("CREATE TABLE " + tName(tableName) + "(" + columns.map(_.sqlColumn).mkString(", ") + ") AS " + csvReadCommand(csvFile, options)  + ";").execute }
+	}
+	
+	/**
+	 * Loads a CSV attempting to give the columns the specified types from the information provided by extra information on the table.
+	 */
+	def loadCSV(csvFile: String, table: Table[_] { def inferredColumnData: Vector[InferredColumn] }, csvOptions: String = null)(implicit options: H2CSVOptions) {
 		loadCSV(csvFile, table.tableName, table.inferredColumnData: _*)(options)
 	}
 
-	def loadCSV(csvFile: String, tableName: String, columns: InferredColumn*)(implicit options: H2CSVOptions) = {
-		run {
-			Q.updateNA("CREATE TABLE " + tName(tableName) + "(" + columns.map(_.sqlColumn).mkString(", ") + ") AS " + csvReadCommand(csvFile, options)  + ";").execute
-		}
-		tableName
-	}
-
+	/**
+	 * Returns code for a Slick Scala table.
+	 * This function is not usually used directly see scalaCodeFromCSV.
+	 * 
+	 */
 	def scalaCodeFor(scalaName: String, tableName: String, columns: InferredColumn*) = {
 		val b = new StringBuilder("object " + scalaName + " extends Table[(" + columns.map(cType(_)).mkString(", ") + ")](\"" + tName(tableName) + "\") {\n")
 		for (column <- columns) {
@@ -81,16 +100,24 @@ object WorkingData {
 	}
 	private def tName(name: String) = name.toUpperCase
 
+	/**
+	 * Drops a table in the Working Data DB if it exists
+	 */
 	def dropTable(tableName: String) = {
 		run { Q.updateNA("DROP TABLE IF EXISTS \"" + tName(tableName) + "\";").execute }
 	}
 
+	/**
+	 * This code simply combines several other methods for convenience. 
+	 * It will do all the work required to generate the code for a Slick Scala table from a CSV file,
+	 * including loading, guessing the types etc.
+	 * Note in order to guess the type the table will be loaded into memory.
+	 */
 	def scalaCodeFromCSV(scalaName: String, csvFile: String) = {
 		val tempCSVTable = "temp_table_" + UUID.randomUUID.toString
 		try {
 			loadCSVColumnsAllString(csvFile, tempCSVTable)
 			val columns = guessColumnTypes(tempCSVTable)
-			loadCSV(csvFile, scalaName, columns: _*)
 			scalaCodeFor(scalaName, scalaName, columns: _*)
 		} finally {
 			dropTable(tempCSVTable)

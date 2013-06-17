@@ -131,16 +131,3 @@ object ColumnString extends ColumnType[String] {
 
 	def isValidSQL(s: String) = { true }
 }
-
-//Java/JDBC	Oracle	PostgreSql	DB2	MySql	H2	MS SQL	Derby
-//int	 number	 integer	 int	 int	 int	 int	 integer
-//long	 number	 bigint	 bigint	 bigint	 bigint	 bigint	 bigint
-//float	 float	 real	 real	 float	 real	 real	 real
-//double	 real	 double precision	 double	 double	 double	 float	 double
-//BigDecimal	 decimal	 numeric	 decimal	 decimal	 decimal	 decimal	 decimal
-//String	 varchar2(x)	 varchar(x)	 varchar(x)	 varchar(x)	 varchar(x)	 varchar(x)	 varchar(x)
-//Date	 date	 date	 date	 date	 date	 date	 date
-//Timestamp	 date	 timestamp	 timestamp	 datetime	 timestamp	 datetime	 timestamp
-//byte[]	 blob	 bytea	 blob	 blob	 binary	 varbinary	 blob(1M)
-//boolean	 number(1)	 boolean	 char(1)	 boolean	 boolean	 bit	 char(1)
-//UUID	 char(36)	 uuid	 char(36)	 char(36)	 uuid	 char(36)	 char(36)
