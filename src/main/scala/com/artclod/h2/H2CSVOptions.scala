@@ -8,12 +8,12 @@ case class H2CSVOptions(caseSensitiveColumnNames: Boolean = false,
 	lineComment: Boolean = false,
 	lineSeparator: String = null,
 	`null`: String = null,
-	rowSeparator: String,
+	rowSeparator: String = null,
 	preserveWhitespace: Boolean = false) {
 
 	private def sql(v: String, pre: String) = { if (v == null) { None } else { Some(pre + v) } }
 	private def sql(v: Boolean, pre: String) = { if (!v) { None } else { Some(pre + v) } }
-	private def csvOptions = sql(charset, "charset=") ::
+	private val csvOptions = (sql(charset, "charset=") ::
 		sql(escape, "escape=") ::
 		sql(fieldDelimiter, "fieldDelimiter=") ::
 		sql(fieldSeparator, "fieldSeparator=") ::
@@ -22,9 +22,10 @@ case class H2CSVOptions(caseSensitiveColumnNames: Boolean = false,
 		sql(`null`, "null=") ::
 		sql(rowSeparator, "rowSeparator=") ::
 		sql(preserveWhitespace, "preserveWhitespace=") ::
-		Nil
+		Nil).filter(!_.isEmpty).map(_.get)
 
 	//	STRINGDECODE('charset=UTF-8 escape=\" fieldDelimiter=\" fieldSeparator=, ' || 'lineComment=# lineSeparator=\n null= rowSeparator=')
-	val sqlString = "STRINGDECODE('" + csvOptions.filter(!_.isEmpty).mkString(" ") + "')"
+//	val sqlString = if(csvOptions.isEmpty) "" else ", STRINGDECODE('" + csvOptions.mkString(" ") + "')"
+	val sqlString = if(csvOptions.isEmpty) "" else ", '" + csvOptions.mkString(" ") + "'"
 
 }

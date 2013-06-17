@@ -18,9 +18,10 @@ import scala.slick.jdbc.SetParameter
 
 object WorkingData {
 	val workingDataURL = "jdbc:h2:mem:working_data_" + UUID.randomUUID().toString() + ";DB_CLOSE_DELAY=-1"
-	
-	implicit val defaultColumnTypes = Vector(ColumnBoolean, ColumnDate_yyy_MM_dd, ColumnTimestamp, ColumnInt, ColumnLong, ColumnDouble, ColumnString)	
-	
+
+	implicit val defaultColumnTypes = Vector(ColumnBoolean, ColumnDate_yyy_MM_dd, ColumnTimestamp, ColumnInt, ColumnLong, ColumnDouble, ColumnString)
+	implicit val defaultCSVOptions = H2CSVOptions()
+
 	private val inferredColumnData = "inferredColumnData"
 	private val firstColumnAsOptionString = GetResult(r => r.nextStringOption)
 
@@ -28,10 +29,11 @@ object WorkingData {
 		Database.forURL(workingDataURL, driver = classOf[org.h2.Driver].getCanonicalName().toString) withSession { code }
 	}
 
-	def loadCSVColumnsAllString(csvFile: String, tableName: String) = {
-		run { Q.updateNA("CREATE TABLE \"" + tName(tableName) + "\" AS SELECT * FROM CSVREAD('" + csvFile + "');").execute }
+	def loadCSVColumnsAllString(csvFile: String, tableName: String)(implicit options: H2CSVOptions) = {
+		run { Q.updateNA("CREATE TABLE \"" + tName(tableName) + "\" AS " + csvReadCommand(csvFile, options) + ";").execute }
 	}
-
+	private def csvReadCommand(csvFile: String, options: H2CSVOptions) = "SELECT * FROM CSVREAD('" + csvFile + "', null" + options.sqlString + ")"
+	
 	def guessColumnTypes(tableName: String)(implicit columnTypes: Vector[ColumnType[_]]) = {
 		if (tableName == null) { throw new IllegalArgumentException("name was null") }
 		run {
@@ -48,13 +50,13 @@ object WorkingData {
 	}
 
 	// charset=UTF-8 escape=\" fieldDelimiter=\" fieldSeparator=, ' || 'lineComment=# lineSeparator=\n null= rowSeparator=
-	def loadCSV(csvFile: String, table: Table[_] { def inferredColumnData: Vector[InferredColumn] }, csvOptions : String = null): String = {
-		loadCSV(csvFile, table.tableName, table.inferredColumnData: _*)
+	def loadCSV(csvFile: String, table: Table[_] { def inferredColumnData: Vector[InferredColumn] }, csvOptions: String = null)(implicit options: H2CSVOptions): String = {
+		loadCSV(csvFile, table.tableName, table.inferredColumnData: _*)(options)
 	}
 
-	def loadCSV(csvFile: String, tableName: String, columns: InferredColumn*) = {
+	def loadCSV(csvFile: String, tableName: String, columns: InferredColumn*)(implicit options: H2CSVOptions) = {
 		run {
-			Q.updateNA("CREATE TABLE " + tName(tableName) + "(" + columns.map(_.sqlColumn).mkString(", ") + ") AS SELECT * FROM CSVREAD('" + csvFile + "');").execute
+			Q.updateNA("CREATE TABLE " + tName(tableName) + "(" + columns.map(_.sqlColumn).mkString(", ") + ") AS " + csvReadCommand(csvFile, options)  + ";").execute
 		}
 		tableName
 	}
@@ -80,10 +82,7 @@ object WorkingData {
 	private def tName(name: String) = name.toUpperCase
 
 	def dropTable(tableName: String) = {
-		run {
-			Q.updateNA("DROP TABLE IF EXISTS \"" + tName(tableName) + "\";").execute
-		}
-		tableName
+		run { Q.updateNA("DROP TABLE IF EXISTS \"" + tName(tableName) + "\";").execute }
 	}
 
 	def scalaCodeFromCSV(scalaName: String, csvFile: String) = {
