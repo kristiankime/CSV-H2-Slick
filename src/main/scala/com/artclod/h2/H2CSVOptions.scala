@@ -24,8 +24,5 @@ case class H2CSVOptions(caseSensitiveColumnNames: Boolean = false,
 		sql(preserveWhitespace, "preserveWhitespace=") ::
 		Nil).filter(!_.isEmpty).map(_.get)
 
-	//	STRINGDECODE('charset=UTF-8 escape=\" fieldDelimiter=\" fieldSeparator=, ' || 'lineComment=# lineSeparator=\n null= rowSeparator=')
-//	val sqlString = if(csvOptions.isEmpty) "" else ", STRINGDECODE('" + csvOptions.mkString(" ") + "')"
-	val sqlString = if(csvOptions.isEmpty) "" else ", '" + csvOptions.mkString(" ") + "'"
-
+	val sqlString = if (csvOptions.isEmpty) "" else ", STRINGDECODE('" + csvOptions.mkString(" ") + "')"
 }

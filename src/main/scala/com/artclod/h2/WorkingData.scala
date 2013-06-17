@@ -17,7 +17,7 @@ import scala.collection.immutable.Vector
 import scala.slick.jdbc.SetParameter
 
 object WorkingData {
-	val workingDataURL = "jdbc:h2:mem:working_data_" + UUID.randomUUID().toString() + ";DB_CLOSE_DELAY=-1"
+	val workingDataURL = "jdbc:h2:mem:working_data_" + UUID.randomUUID.toString + ";DB_CLOSE_DELAY=-1"
 
 	implicit val defaultColumnTypes = Vector(ColumnBoolean, ColumnDate_yyy_MM_dd, ColumnTimestamp, ColumnInt, ColumnLong, ColumnDouble, ColumnString)
 	implicit val defaultCSVOptions = H2CSVOptions()
