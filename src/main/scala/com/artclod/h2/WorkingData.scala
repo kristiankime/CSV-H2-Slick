@@ -18,24 +18,22 @@ import scala.slick.jdbc.SetParameter
 
 object WorkingData {
 	val workingDataURL = "jdbc:h2:mem:working_data_" + UUID.randomUUID().toString() + ";DB_CLOSE_DELAY=-1"
-
-	private val firstColumnAsOptionString = GetResult(r => r.nextStringOption)
-	private val columnTypes = Vector(ColumnBoolean, ColumnDate_yyy_MM_dd, ColumnTimestamp, ColumnInt, ColumnLong, ColumnDouble, ColumnString)
+	
+	implicit val defaultColumnTypes = Vector(ColumnBoolean, ColumnDate_yyy_MM_dd, ColumnTimestamp, ColumnInt, ColumnLong, ColumnDouble, ColumnString)	
+	
 	private val inferredColumnData = "inferredColumnData"
+	private val firstColumnAsOptionString = GetResult(r => r.nextStringOption)
 
 	def run[T](code: => T) = {
 		Database.forURL(workingDataURL, driver = classOf[org.h2.Driver].getCanonicalName().toString) withSession { code }
 	}
 
 	def loadCSVColumnsAllString(csvFile: String, tableName: String) = {
-		run {
-			Q.updateNA("CREATE TABLE \"" + tName(tableName) + "\" AS SELECT * FROM CSVREAD('" + csvFile + "');").execute
-		}
-		tableName
+		run { Q.updateNA("CREATE TABLE \"" + tName(tableName) + "\" AS SELECT * FROM CSVREAD('" + csvFile + "');").execute }
 	}
 
-	def guessColumnTypes(tableName: String) = {
-		if(tableName == null ) { throw new IllegalArgumentException("name was null")}
+	def guessColumnTypes(tableName: String)(implicit columnTypes: Vector[ColumnType[_]]) = {
+		if (tableName == null) { throw new IllegalArgumentException("name was null") }
 		run {
 			val columnsMetaData = MTable.getTables(tName(tableName)).first.getColumns
 			val inferedColumnTypes = ArrayBuffer[InferredColumn]()
@@ -50,7 +48,7 @@ object WorkingData {
 	}
 
 	// charset=UTF-8 escape=\" fieldDelimiter=\" fieldSeparator=, ' || 'lineComment=# lineSeparator=\n null= rowSeparator=
-	def loadCSV(csvFile: String, table: Table[_] { def inferredColumnData: Vector[InferredColumn] }): String = {
+	def loadCSV(csvFile: String, table: Table[_] { def inferredColumnData: Vector[InferredColumn] }, csvOptions : String = null): String = {
 		loadCSV(csvFile, table.tableName, table.inferredColumnData: _*)
 	}
 
