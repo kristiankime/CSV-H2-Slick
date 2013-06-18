@@ -113,12 +113,12 @@ object WorkingData {
 	 * including loading, guessing the types etc.
 	 * Note in order to guess the type the table will be loaded into memory.
 	 */
-	def scalaCodeFromCSV(scalaName: String, csvFile: String) = {
+	def scalaCodeFromCSV(scalaTableObjectName: String, csvFile: String) = {
 		val tempCSVTable = "temp_table_" + UUID.randomUUID.toString
 		try {
 			loadCSVColumnsAllString(csvFile, tempCSVTable)
 			val columns = guessColumnTypes(tempCSVTable)
-			scalaCodeFor(scalaName, scalaName, columns: _*)
+			scalaCodeFor(scalaTableObjectName, scalaTableObjectName, columns: _*)
 		} finally {
 			dropTable(tempCSVTable)
 		}
